@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-please2protect",
-  "version": "0.1.0",
-  "identifier": "com.b.tauri-please2protect",
+  "productName": "Please2Protect",
+  "version": "0.1.1",
+  "identifier": "com.b.Please2Protect",
   "build": {
     "frontendDist": "../src"
   },
@@ -11,9 +11,6 @@
     "windows": [
       {
         "title": "tauri-please2protect",
-        "width": 800,
-        "height": 600,
-        "decorations": false,
         "minWidth":800,
         "minHeight":600
       }
