@@ -1,0 +1,60 @@
+name: 'publish'
+
+on:
+  push:
+    branches:
+      - main # Se activa al subir cambios a main
+
+jobs:
+  publish-tauri:
+    permissions:
+      contents: write # Permiso para crear un "Release" en GitHub
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'ubuntu-22.04' # Compilador para Linux
+            args: ''
+          - platform: 'windows-latest' # Compilador para Windows
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Dependencias del sistema (solo para Linux)
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      # 2. Configurar Rust y su caché
+      - name: setup rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      # 3. Configurar Node.js y su caché
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      # 4. Instalar dependencias del frontend
+      - name: install frontend dependencies
+        run: npm install
+
+      # 5. Compilar y crear el Release
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__ # Crea un tag automático con la versión
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'Descarga aquí los instaladores.'
+          releaseDraft: true # Se crea como borrador para que lo revises
+          prerelease: false
