@@ -51,9 +51,10 @@ jobs:
         with:
           tagName: app-v__VERSION__
           releaseName: 'App v__VERSION__'
-          releaseBody: 'Descarga los instaladores de la sección Assets.'
+          releaseBody: 'Download execs.'
           releaseDraft: true
           prerelease: false
+          tauriScript: bash scripts/tauri-build.sh
           args: ${{ matrix.args }}
 
   publish-release:

@@ -1,15 +1,34 @@
-export DESKTOPINTEGRATION=1
+#!/usr/bin/env bash
+set -euo pipefail
 
-if [ -z "${LD_PRELOAD:-}" ]; then
-  for lib in \
-    /usr/lib/libwayland-client.so \
-    /usr/lib64/libwayland-client.so \
-    /usr/lib/x86_64-linux-gnu/libwayland-client.so \
-    /usr/lib/aarch64-linux-gnu/libwayland-client.so \
-    /usr/lib/arm-linux-gnueabihf/libwayland-client.so; do
-    if [ -f "$lib" ]; then
-      export LD_PRELOAD="$lib"
-      break
-    fi
-  done
+APP_DIR=$(find src-tauri/target/release/bundle/appimage -maxdepth 1 -type d -name "*.AppDir" | head -n 1)
+
+if [ -z "$APP_DIR" ]; then
+  echo "No AppDir found, skipping patch"
+  exit 0
 fi
+
+echo "Patching AppDir: $APP_DIR"
+
+mkdir -p "$APP_DIR/apprun-hooks"
+cp src-tauri/appimage/apprun-wayland-compat.sh "$APP_DIR/apprun-hooks/wayland-compat.sh"
+chmod +x "$APP_DIR/apprun-hooks/wayland-compat.sh"
+
+APPRUN="$APP_DIR/AppRun"
+if ! grep -q "wayland-compat.sh" "$APPRUN"; then
+  sed -i 's|exec "$HERE/AppRun.wrapped"|source "$HERE/apprun-hooks/wayland-compat.sh"\nexec "$HERE/AppRun.wrapped"|' "$APPRUN"
+fi
+
+cd src-tauri/target/release/bundle/appimage
+APPIMAGE_NAME=$(ls *.AppImage | head -n 1)
+rm -f "$APPIMAGE_NAME"
+
+APPIMAGETOOL=$(find ~/.cache/tauri -name "appimagetool*" -type f | head -n 1)
+if [ -z "$APPIMAGETOOL" ]; then
+  wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O /tmp/appimagetool
+  chmod +x /tmp/appimagetool
+  APPIMAGETOOL=/tmp/appimagetool
+fi
+
+ARCH=x86_64 "$APPIMAGETOOL" --appimage-extract-and-run --no-appstream "$APP_DIR"
+echo "AppImage repackaged with Wayland hook"
