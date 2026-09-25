@@ -32,9 +32,6 @@
 
     "linux": {
       "appimage": {
-        "files": {
-          "/usr/lib/libEGL.so.1": "/usr/lib/libEGL.so.1"
-        }
       }
     }
   }
