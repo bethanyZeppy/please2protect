@@ -54,7 +54,7 @@ jobs:
           releaseBody: 'Download execs.'
           releaseDraft: true
           prerelease: false
-          tauriScript: bash scripts/tauri-build.sh
+          tauriScript: bash tauri-build.sh
           args: ${{ matrix.args }}
 
   publish-release:
