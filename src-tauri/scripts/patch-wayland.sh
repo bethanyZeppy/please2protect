@@ -11,12 +11,12 @@ fi
 echo "Patching AppDir: $APP_DIR"
 
 mkdir -p "$APP_DIR/apprun-hooks"
-cp src-tauri/appimage/apprun-wayland-compat.sh "$APP_DIR/apprun-hooks/wayland-compat.sh"
-chmod +x "$APP_DIR/apprun-hooks/wayland-compat.sh"
+cp src-tauri/appimage/compat.sh "$APP_DIR/apprun-hooks/compat.sh"
+chmod +x "$APP_DIR/apprun-hooks/compat.sh"
 
 APPRUN="$APP_DIR/AppRun"
-if ! grep -q "wayland-compat.sh" "$APPRUN"; then
-  sed -i 's|exec "$HERE/AppRun.wrapped"|source "$HERE/apprun-hooks/wayland-compat.sh"\nexec "$HERE/AppRun.wrapped"|' "$APPRUN"
+if ! grep -q "compat.sh" "$APPRUN"; then
+  sed -i 's|exec "$HERE/AppRun.wrapped"|source "$HERE/apprun-hooks/compat.sh"\nexec "$HERE/AppRun.wrapped"|' "$APPRUN"
 fi
 
 cd src-tauri/target/release/bundle/appimage
