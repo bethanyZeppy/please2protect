@@ -28,6 +28,19 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+
+    "linux": {
+      "appimage": {
+        "files": {
+          "/usr/lib/libEGL.so.1": "/usr/lib/libEGL.so.1",
+          "/usr/lib/libGL.so.1": "/usr/lib/libGL.so.1",
+          "/usr/lib/libGLESv2.so.2": "/usr/lib/libGLESv2.so.2",
+          "/usr/lib/libgbm.so.1": "/usr/lib/libgbm.so.1",
+          "/usr/lib/libgallium-*.so": "/usr/lib/libgallium-*.so",
+          "/usr/lib/dri/*": "/usr/lib/dri/"
+        }
+      }
+    }
   }
 }
