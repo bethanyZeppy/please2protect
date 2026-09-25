@@ -4,13 +4,14 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
-APP_DIR=$(find src-tauri/target/release/bundle/appimage -maxdepth 1 -type d -name "*.AppDir" | head -n 1)
+APP_DIR_REL=$(find src-tauri/target/release/bundle/appimage -maxdepth 1 -type d -name "*.AppDir" | head -n 1)
 
-if [ -z "$APP_DIR" ]; then
+if [ -z "$APP_DIR_REL" ]; then
   echo "No AppDir found, skipping patch"
   exit 0
 fi
 
+APP_DIR="$(cd "$APP_DIR_REL" && pwd)"
 echo "Patching AppDir: $APP_DIR"
 
 mkdir -p "$APP_DIR/apprun-hooks"
@@ -22,8 +23,7 @@ if ! grep -q "wayland-compat.sh" "$APPRUN"; then
   sed -i 's|exec "$HERE/AppRun.wrapped"|source "$HERE/apprun-hooks/wayland-compat.sh"\nexec "$HERE/AppRun.wrapped"|' "$APPRUN"
 fi
 
-cd src-tauri/target/release/bundle/appimage
-APPIMAGE_NAME=$(ls *.AppImage 2>/dev/null | head -n 1)
+APPIMAGE_NAME=$(ls "$APP_DIR/../"*.AppImage 2>/dev/null | head -n 1 || true)
 if [ -n "$APPIMAGE_NAME" ]; then
   rm -f "$APPIMAGE_NAME"
 fi
