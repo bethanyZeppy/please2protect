@@ -15,7 +15,7 @@ jobs:
         include:
           - platform: 'ubuntu-22.04'
             args: ''
-          - platform: 'windows-latest' 
+          - platform: 'windows-latest'
             args: ''
 
     runs-on: ${{ matrix.platform }}
@@ -48,41 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__ 
+          tagName: app-v__VERSION__
           releaseName: 'App v__VERSION__'
           releaseBody: 'Download the installers here.'
           releaseDraft: true
           prerelease: true
-
-  build-arch:
-    runs-on: ubuntu-latest
-    container: archlinux:latest
-    env:
-      RUSTFLAGS: "-C link-arg=-fuse-ld=bfd"
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install build tools
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm base-devel rust nodejs npm webkit2gtk-4.1 gtk3 git
-
-      - name: Create build user
-        run: |
-          useradd -m builder
-          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-      - name: Give ownership of workspace to builder
-        run: chown -R builder:builder $GITHUB_WORKSPACE
-
-      - name: Build Arch package
-        run: |
-          cd $GITHUB_WORKSPACE/packaging
-          su builder -c "makepkg -s --noconfirm"
-
-      - name: Upload Arch package
-        uses: softprops/action-gh-release@v2
-        with:
-          files: packaging/*.pkg.tar.zst
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
