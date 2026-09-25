@@ -30,6 +30,7 @@ jobs:
 
       - name: setup rust
         uses: dtolnay/rust-toolchain@stable
+
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -43,13 +44,14 @@ jobs:
 
       - name: install frontend dependencies
         run: npm install
-        
-      - name: Create release
+
+      - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
-        run: |
-          gh release create "$tag" \
-              --repo="$GITHUB_REPOSITORY" \
-              --title="${tag#v}" \
-              --generate-notes
+        with:
+          tagName: app-v__VERSION__     
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'Descarga los instaladores de la sección Assets.'
+          releaseDraft: false  
+          prerelease: false
+          args: ${{ matrix.args }}
