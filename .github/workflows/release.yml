@@ -46,16 +46,13 @@ jobs:
         run: npm install
 
       - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tauriScript: bash src-tauri/scripts/tauri-build.sh
           tagName: app-v__VERSION__
           releaseName: 'App v__VERSION__'
-          releaseBody: 'Download execs.'
+          releaseBody: 'Asset Download.'
           releaseDraft: true
           prerelease: false
-          tauriScript: bash src-tauri/scripts/tauri-build.sh
-          args: ${{ matrix.args }}
 
   publish-release:
     needs: publish-tauri
