@@ -3,33 +3,31 @@ name: 'publish'
 on:
   push:
     branches:
-      - main # Se activa al subir cambios a main
+      - main
 
 jobs:
   publish-tauri:
     permissions:
-      contents: write # Permiso para crear un "Release" en GitHub
+      contents: write
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: 'ubuntu-22.04' # Compilador para Linux
+          - platform: 'ubuntu-22.04'
             args: ''
-          - platform: 'windows-latest' # Compilador para Windows
+          - platform: 'windows-latest' 
             args: ''
 
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Dependencias del sistema (solo para Linux)
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      # 2. Configurar Rust y su caché
       - name: setup rust
         uses: dtolnay/rust-toolchain@stable
       - name: Rust cache
@@ -37,24 +35,45 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      # 3. Configurar Node.js y su caché
       - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'npm'
 
-      # 4. Instalar dependencias del frontend
       - name: install frontend dependencies
         run: npm install
 
-      # 5. Compilar y crear el Release
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__ # Crea un tag automático con la versión
+          tagName: app-v__VERSION__ 
           releaseName: 'App v__VERSION__'
-          releaseBody: 'Descarga aquí los instaladores.'
-          releaseDraft: true # Se crea como borrador para que lo revises
-          prerelease: false
+          releaseBody: 'Download the installers here.'
+          releaseDraft: true
+          prerelease: true
+
+  build-arch:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel rust nodejs npm webkit2gtk-4.1 gtk3
+
+      - name: Build Arch package
+        run: |
+          cd packaging
+          makepkg -s --noconfirm
+
+      - name: Upload Arch package
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-v${{ github.run_number }}
+          files: packaging/*.pkg.tar.zst
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
