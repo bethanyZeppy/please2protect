@@ -7,6 +7,7 @@ const input = document.getElementById("input");
 
 const message_button = document.getElementById("send_file_btn")
 
+
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const text = input.value.trim();
