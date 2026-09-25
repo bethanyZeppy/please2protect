@@ -63,17 +63,24 @@ jobs:
       - name: Install build tools
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm base-devel rust nodejs npm webkit2gtk-4.1 gtk3
+          pacman -S --noconfirm base-devel rust nodejs npm webkit2gtk-4.1 gtk3 git
+
+      - name: Create build user
+        run: |
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+      - name: Give ownership of workspace to builder
+        run: chown -R builder:builder $GITHUB_WORKSPACE
 
       - name: Build Arch package
         run: |
-          cd packaging
-          makepkg -s --noconfirm
+          cd $GITHUB_WORKSPACE/packaging
+          su builder -c "makepkg -s --noconfirm"
 
       - name: Upload Arch package
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: app-v${{ github.run_number }}
           files: packaging/*.pkg.tar.zst
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
