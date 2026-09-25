@@ -43,13 +43,13 @@ jobs:
 
       - name: install frontend dependencies
         run: npm install
-
-      - uses: tauri-apps/tauri-action@v0
+        
+      - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: app-v__VERSION__
-          releaseName: 'App v__VERSION__'
-          releaseBody: 'Download the installers here.'
-          releaseDraft: false
-          prerelease: false
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${tag#v}" \
+              --generate-notes
