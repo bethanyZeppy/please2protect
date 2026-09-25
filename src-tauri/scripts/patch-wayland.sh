@@ -11,7 +11,7 @@ fi
 echo "Patching AppDir: $APP_DIR"
 
 mkdir -p "$APP_DIR/apprun-hooks"
-cp src-tauri/appimage/compat.sh "$APP_DIR/apprun-hooks/compat.sh"
+cp compat.sh "$APP_DIR/apprun-hooks/compat.sh"
 chmod +x "$APP_DIR/apprun-hooks/compat.sh"
 
 APPRUN="$APP_DIR/AppRun"
