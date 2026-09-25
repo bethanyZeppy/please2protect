@@ -55,35 +55,6 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
-      
-      - name: Strip GPU libs from AppImage (Linux only)
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          cd src-tauri/target/release/bundle/appimage
-          
-          # Extraer el AppImage
-          chmod +x *.AppImage
-          ./*.AppImage --appimage-extract
-          
-          # Borrar librerías gráficas y de Wayland conflictivas
-          find squashfs-root/ \( \
-            -name "libEGL.so*" -o \
-            -name "libGLESv2.so*" -o \
-            -name "libGL.so*" -o \
-            -name "libGLX.so*" -o \
-            -name "libgbm.so*" -o \
-            -name "libwayland-client.so*" -o \
-            -name "libwayland-server.so*" -o \
-            -name "libwayland-cursor.so*" -o \
-            -name "libwayland-egl.so*" -o \
-            -path "*/dri/*" \
-          \) -delete
-          
-          # Repackage con appimagetool
-          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O /tmp/appimagetool
-          chmod +x /tmp/appimagetool
-          ARCH=x86_64 /tmp/appimagetool --appimage-extract-and-run --no-appstream squashfs-root/
-          rm -rf squashfs-root /tmp/appimagetool
 
   publish-release:
     needs: publish-tauri
