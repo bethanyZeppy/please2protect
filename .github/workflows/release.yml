@@ -51,5 +51,5 @@ jobs:
           tagName: app-v__VERSION__
           releaseName: 'App v__VERSION__'
           releaseBody: 'Download the installers here.'
-          releaseDraft: true
-          prerelease: true
+          releaseDraft: false
+          prerelease: false
